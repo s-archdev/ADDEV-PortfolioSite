@@ -1,0 +1,399 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>AD/DEV</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+            font-family: 'Courier New', monospace;
+        }
+        
+        body {
+            background-color: #b2b2b2;
+            color: white;
+            overflow-x: hidden;
+        }
+        
+        header {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            padding: 20px;
+            position: relative;
+            z-index: 10;
+        }
+        
+        .logo {
+            width: 60px;
+            height: 60px;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+        }
+        
+        .logo svg {
+            width: 100%;
+            height: 100%;
+        }
+        
+        .menu-dots {
+            display: flex;
+            gap: 8px;
+        }
+        
+        .dot {
+            width: 10px;
+            height: 10px;
+            background-color: #333;
+            border-radius: 50%;
+        }
+        
+        .site-title {
+            font-weight: bold;
+            font-size: 1.5rem;
+            text-transform: uppercase;
+            color: #333;
+        }
+        
+        nav {
+            display: flex;
+            gap: 30px;
+        }
+        
+        nav a {
+            text-decoration: none;
+            text-transform: uppercase;
+            transition: color 0.3s;
+        }
+        
+        nav a.active {
+            color: #5050ff;
+        }
+        
+        nav a:hover {
+            color: #5050ff;
+        }
+        
+        .hero {
+            position: relative;
+            width: 100%;
+            height: 80vh;
+            display: flex;
+            align-items: center;
+            background-color: #000;
+            overflow: hidden;
+        }
+        
+        .light-trail {
+            position: absolute;
+            width: 100%;
+            height: 100%;
+            background-size: cover;
+            background-position: center;
+            z-index: 1;
+        }
+        
+        .bio-section {
+            position: absolute;
+            left: 50px;
+            bottom: 150px;
+            z-index: 2;
+            max-width: 700px;
+        }
+        
+        .bio-title {
+            font-size: 1.2rem;
+            color: #5050ff;
+            margin-bottom: 20px;
+            text-transform: uppercase;
+        }
+        
+        .bio-content {
+            color: #5050ff;
+            font-size: 1rem;
+            line-height: 1.4;
+            text-transform: uppercase;
+        }
+        
+        .big-text {
+            position: absolute;
+            bottom: -50px;
+            left: 0;
+            right: 0;
+            font-size: 10rem;
+            font-weight: bold;
+            text-align: center;
+            color: rgba(255, 255, 255, 0.1);
+            text-transform: uppercase;
+            z-index: 0;
+        }
+        
+        @media (max-width: 768px) {
+            nav {
+                display: none;
+            }
+            
+            .bio-section {
+                left: 20px;
+                bottom: 100px;
+                max-width: 90%;
+            }
+            
+            .bio-content {
+                font-size: 0.9rem;
+            }
+            
+            .big-text {
+                font-size: 4rem;
+            }
+        }
+    </style>
+</head>
+<body>
+    <header>
+        <div class="logo">
+            <svg viewBox="0 0 100 100" xmlns="http://www.w3.org/2000/svg">
+                <polygon points="50,10 61,35 90,35 67,55 75,80 50,65 25,80 33,55 10,35 39,35" fill="#e0ff00"/>
+            </svg>
+        </div>
+        
+        <div class="menu-dots">
+            <div class="dot"></div>
+            <div class="dot"></div>
+            <div class="dot"></div>
+        </div>
+        
+        <div class="site-title">AD/DEV</div>
+        
+        <nav>
+            <a href="#" class="active">BIOS</a>
+            <a href="#">WORK</a>
+            <a href="#">DROPS</a>
+            <a href="#">REACH</a>
+        </nav>
+    </header>
+    
+    <section class="hero">
+        <canvas id="lightTrailCanvas"></canvas>
+        
+        <div class="bio-section">
+            <div class="bio-title">BIOS</div>
+            <div class="bio-content">
+                SHANE SANCHEZ, A NATIVE CALIFORNIAN BORN IN 1989, CHANNELS HIS
+                INNATE CREATIVE ENERGY INTO THE REALM OF SALES AND CREATIVE
+                ANALYSIS. WITH AN EARLY APPETITE FOR AVANT-GARDE ART, EXPERIMENTAL
+                MUSIC, AND POSTHUMAN PHILOSOPHY, SHANE'S JOURNEY LED HIM
+                TO A PIVOTAL ROLE AS A SALES AND OPERATIONS ANALYST AT CONTRACT
+                SERVICES GROUP, INC. THIS ROLE HAS BEEN THE CORNERSTONE OF
+                HIS CAREER, WHERE HE METICULOUSLY ANALYZES DATA TO DRIVE BUSINESS
+                DECISIONS AND ENHANCE OPERATIONAL EFFICIENCY.
+            </div>
+        </div>
+        
+        <div class="big-text">AD/DEV·BIOS</div>
+    </section>
+    
+    <script>
+        const canvas = document.getElementById('lightTrailCanvas');
+        const ctx = canvas.getContext('2d');
+        
+        // Set canvas dimensions
+        function resizeCanvas() {
+            canvas.width = window.innerWidth;
+            canvas.height = document.querySelector('.hero').offsetHeight;
+        }
+        
+        window.addEventListener('resize', resizeCanvas);
+        resizeCanvas();
+        
+        // Light trail parameters
+        const trails = [];
+        const trailCount = 1;
+        
+        // Colors
+        const colors = [
+            {r: 255, g: 100, b: 100}, // Red
+            {r: 100, g: 100, b: 255}  // Blue
+        ];
+        
+        function createTrail() {
+            const trail = {
+                points: [],
+                width: 8,
+                maxPoints: 100,
+                speed: 2,
+                color: colors[Math.floor(Math.random() * colors.length)],
+                phase: 0,
+                frequency: 0.02
+            };
+            
+            // Initial position
+            const startX = canvas.width * 0.3;
+            const startY = canvas.height * 0.5;
+            
+            for (let i = 0; i < 10; i++) {
+                trail.points.push({
+                    x: startX,
+                    y: startY
+                });
+            }
+            
+            trails.push(trail);
+        }
+        
+        function updateTrails() {
+            trails.forEach(trail => {
+                // Update phase
+                trail.phase += 0.01;
+                
+                // Create new head position with wave motion
+                const lastPoint = trail.points[trail.points.length - 1];
+                let newX = lastPoint.x + trail.speed;
+                let newY = lastPoint.y + Math.sin(trail.phase * 5) * 10;
+                
+                // Infinity-like pattern
+                newX += Math.cos(trail.phase) * 3;
+                newY += Math.sin(trail.phase * 2) * 5;
+                
+                // Add new point to head
+                trail.points.push({
+                    x: newX,
+                    y: newY
+                });
+                
+                // Remove tail if too many points
+                if (trail.points.length > trail.maxPoints) {
+                    trail.points.shift();
+                }
+                
+                // Reset trail if it moves off screen
+                if (newX > canvas.width + 100) {
+                    trail.points = [];
+                    const startX = -100;
+                    const startY = Math.random() * canvas.height;
+                    
+                    for (let i = 0; i < 10; i++) {
+                        trail.points.push({
+                            x: startX,
+                            y: startY
+                        });
+                    }
+                }
+            });
+        }
+        
+        function drawTrails() {
+            // Clear canvas
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+            ctx.fillStyle = 'black';
+            ctx.fillRect(0, 0, canvas.width, canvas.height);
+            
+            // Draw each trail
+            trails.forEach(trail => {
+                if (trail.points.length < 2) return;
+                
+                // Draw trail with glow effect
+                for (let i = 0; i < trail.points.length - 1; i++) {
+                    const point = trail.points[i];
+                    const nextPoint = trail.points[i + 1];
+                    
+                    // Calculate alpha based on position in trail
+                    const alpha = i / trail.points.length;
+                    
+                    // Draw glow
+                    const gradient = ctx.createLinearGradient(
+                        point.x, point.y,
+                        nextPoint.x, nextPoint.y
+                    );
+                    
+                    const color = trail.color;
+                    gradient.addColorStop(0, `rgba(${color.r}, ${color.g}, ${color.b}, ${alpha * 0.5})`);
+                    gradient.addColorStop(1, `rgba(${color.r}, ${color.g}, ${color.b}, ${alpha})`);
+                    
+                    ctx.beginPath();
+                    ctx.strokeStyle = gradient;
+                    ctx.lineWidth = trail.width * alpha;
+                    ctx.lineCap = 'round';
+                    ctx.moveTo(point.x, point.y);
+                    ctx.lineTo(nextPoint.x, nextPoint.y);
+                    ctx.stroke();
+                    
+                    // Draw white core
+                    ctx.beginPath();
+                    ctx.strokeStyle = `rgba(255, 255, 255, ${alpha})`;
+                    ctx.lineWidth = trail.width * alpha * 0.5;
+                    ctx.moveTo(point.x, point.y);
+                    ctx.lineTo(nextPoint.x, nextPoint.y);
+                    ctx.stroke();
+                }
+            });
+        }
+        
+        function createInfinityPattern() {
+            const trail = {
+                points: [],
+                width: 10,
+                maxPoints: 200,
+                phase: 0,
+                color: colors[Math.floor(Math.random() * colors.length)]
+            };
+            
+            trails.push(trail);
+            
+            // Create second trail with offset
+            const trail2 = {
+                points: [],
+                width: 10,
+                maxPoints: 200,
+                phase: Math.PI,
+                color: colors[colors.indexOf(trail.color) === 0 ? 1 : 0]
+            };
+            
+            trails.push(trail2);
+        }
+        
+        function updateInfinityPattern() {
+            trails.forEach((trail, index) => {
+                // Clear previous points
+                trail.points = [];
+                
+                // Center of the infinity
+                const centerX = canvas.width * 0.6;
+                const centerY = canvas.height * 0.5;
+                const size = canvas.height * 0.35;
+                
+                // Update phase
+                trail.phase += 0.01;
+                if (trail.phase > Math.PI * 2) {
+                    trail.phase = 0;
+                }
+                
+                // Generate infinity pattern
+                for (let i = 0; i < trail.maxPoints; i++) {
+                    const t = (i / trail.maxPoints) * Math.PI * 2 + trail.phase;
+                    
+                    // Parametric equation for infinity symbol
+                    const x = centerX + size * Math.sin(t);
+                    const y = centerY + size * Math.sin(t) * Math.cos(t);
+                    
+                    trail.points.push({ x, y });
+                }
+            });
+        }
+        
+        function animate() {
+            updateInfinityPattern();
+            drawTrails();
+            requestAnimationFrame(animate);
+        }
+        
+        // Initialize
+        createInfinityPattern();
+        animate();
+    </script>
+</body>
+</html>
